@@ -13,9 +13,7 @@ import { animation } from "./animations";
 import { AnimatedPageProps, PageProps } from "./types";
 
 // Project imports
-import Footer from "@/components/footer";
 import Head from "@/components/head";
-import Nav, { CollapsibleNav } from "@/components/nav";
 
 const Page = (props: PageProps) => {
     const { title, description, imageUrl, robots, children, ...stackProps } =
@@ -35,10 +33,7 @@ const Page = (props: PageProps) => {
                 imageUrl={imageUrl}
                 robots={robots}
             />
-            {isSmallScreen ? <CollapsibleNav /> : <Nav />}
             <main>{children}</main>
-            <Spacer />
-            <Footer />
         </VStack>
     );
 };

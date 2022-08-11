@@ -1,6 +1,6 @@
 export const metaConfig = {
-    title: "NextJs Template",
-    description: "A NextJs template that is accessible and seo friendly",
+    title: "TTT Multiplayer",
+    description: "An online multiplayer Tic Tac Toe Game ",
     imageUrl: "/images/socialCardImage.png",
     twitterUsername: "",
     githubUsername: "",
