@@ -26,7 +26,13 @@ const Page = (props: PageProps) => {
     });
 
     return (
-        <VStack width="full" minHeight="100vh" spacing="0" {...stackProps}>
+        <VStack
+            justifyContent="center"
+            width="full"
+            minHeight="100vh"
+            spacing="0"
+            {...stackProps}
+        >
             <Head
                 title={title}
                 description={description}

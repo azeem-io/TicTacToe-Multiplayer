@@ -15,15 +15,15 @@ const nextConfig = {
 
         return config;
     },
-    devIndicators: {
-        autoPrerender: false,
-    },
+    // devIndicators: {
+    //     autoPrerender: false,
+    // },
     pwa: {
         dest: "public",
         register: true,
         skipWaiting: true,
         runtimeCaching,
-        buildExcludes: [/middleware-manifest\.json$/]
+        buildExcludes: [/middleware-manifest\.json$/],
     },
 };
 
