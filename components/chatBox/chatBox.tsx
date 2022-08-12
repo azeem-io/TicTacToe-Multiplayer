@@ -1,47 +1,120 @@
 // External imports
-import { VStack, HStack, Input, Button, Box, Flex } from "@chakra-ui/react";
-import React from "react";
+import {
+    VStack,
+    HStack,
+    Input,
+    Text,
+    Button,
+    Box,
+    Flex,
+} from "@chakra-ui/react";
+import { Form } from "formik";
+import React, { useState } from "react";
 
 // Component imports
 import { ChatBoxProps } from "./types";
 
 // Project imports
 
+type Message = {
+    author: string;
+    message: string;
+};
+
 const ChatBox = (props: ChatBoxProps) => {
+    const [message, setMessage] = useState("");
+    const [messages, setMessages] = useState<Array<Message>>([]);
+
+    const onFormSubmit = (e: any) => {
+        e.preventDefault();
+
+        setMessages([...messages, { author: "You", message }]);
+        setMessage("");
+    };
+
     return (
         <Flex
             flexDirection="column"
             padding="0.5rem"
+            paddingBottom="0"
             borderRadius="1rem"
             bg="brand.secondary"
             minW="22rem"
             maxW="80vw"
             h="70vh"
+            gap="0.5rem"
         >
             <VStack
                 borderRadius="0.5rem"
                 h="88%"
-                spacing="2rem"
+                w="100%"
+                spacing="1rem"
                 bg="brand.primary"
-            />
-            <HStack
-                paddingX="0.2rem"
-                h="12%"
-                width="full"
-                justifyContent="space-between"
+                overflowY="scroll"
+                overflowX="hidden"
+                overflowWrap={"anywhere"}
+                padding="0.5rem"
             >
-                <Input
-                    variant="filled"
-                    w="14rem"
-                    border="none"
-                    type="text"
-                    h="2rem"
-                    placeholder="Chat..."
-                />
-                <Button w="4rem" h="2rem" borderRadius="0.5rem">
-                    Send!
-                </Button>
-            </HStack>
+                {messages.map((message) => (
+                    <HStack
+                        key={message.author}
+                        alignItems="center"
+                        justifyContent={
+                            message.author === "You" ? "flex-end" : "flex-start"
+                        }
+                        w="full"
+                    >
+                        <HStack
+                            alignItems="center"
+                            bg="player.me"
+                            paddingX="0.5rem"
+                            borderRadius="0.5rem"
+                            textOverflow="ellipsis"
+                            maxWidth="15rem"
+                            padding="0.5rem"
+                        >
+                            {/* <Text fontSize="0.7rem">{message.author}:</Text> */}
+                            <Text
+                                noOfLines={10}
+                                color="text.light"
+                                fontWeight="semibold"
+                            >
+                                {message.message}
+                            </Text>
+                        </HStack>
+                    </HStack>
+                ))}
+            </VStack>
+            <Box>
+                <form onSubmit={onFormSubmit}>
+                    <HStack
+                        paddingX="0.2rem"
+                        h="12%"
+                        width="full"
+                        justifyContent="center"
+                    >
+                        <Input
+                            variant="filled"
+                            w="14rem"
+                            h="2rem"
+                            placeholder="Chat..."
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                        />
+                        <Button
+                            w="5srem"
+                            h="2rem"
+                            type="submit"
+                            borderRadius="0.5rem"
+                            // onClick={() => {
+                            //     handleSubmit();
+                            // }}
+                        >
+                            Send!
+                        </Button>
+                    </HStack>
+                </form>
+            </Box>
         </Flex>
     );
 };

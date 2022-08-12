@@ -5,8 +5,8 @@ const colors = {
         tertiary: "#30475E",
     },
     player: {
-        me: "#F05454",
-        opponent: "#4E9F3D",
+        opponent: "#F05454",
+        me: "#4E9F3D",
     },
     text: {
         dark: "#7F7C82",

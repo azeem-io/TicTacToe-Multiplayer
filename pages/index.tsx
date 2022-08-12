@@ -17,6 +17,7 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import ChatBox from "@/components/chatBox";
+import InfoBox from "@/components/infoBox";
 
 const Home: NextPage = () => {
     const [username, setUsername] = useState("");
@@ -58,23 +59,7 @@ const Home: NextPage = () => {
                         gap="5rem"
                         w="full"
                     >
-                        <Box
-                            display={{ sm: "none", lg: "block" }}
-                            borderRadius="1rem"
-                            bg="brand.secondary"
-                            w="22rem"
-                            h="70vh"
-                            padding="1rem"
-                        >
-                            <HStack
-                                justifyContent="center"
-                                w="full"
-                                spacing="1rem"
-                            >
-                                <Avatar src="https://bit.ly/broken-link" />
-                                <Text fontSize="2rem">{username}</Text>
-                            </HStack>
-                        </Box>
+                        <InfoBox username={username} />
                         <Board />
                         <ChatBox />
                     </Flex>
