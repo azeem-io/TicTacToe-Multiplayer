@@ -59,9 +59,9 @@ const Home: NextPage = () => {
                         gap="5rem"
                         w="full"
                     >
-                        <InfoBox username={username} />
+                        <InfoBox username={chosenUsername} />
                         <Board />
-                        <ChatBox />
+                        <ChatBox chosenUsername={chosenUsername} />
                     </Flex>
                 )}
             </Page>
