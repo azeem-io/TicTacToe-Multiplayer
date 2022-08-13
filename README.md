@@ -1,3 +1,3 @@
 # TicTacToe Online Multiplayer
 
-Made with Nextjs and Socket.io
+Made with Nextjs and Socket.io (X)
