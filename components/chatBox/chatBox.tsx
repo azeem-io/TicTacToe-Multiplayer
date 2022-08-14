@@ -8,7 +8,8 @@ import {
     Box,
     Flex,
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import { UserContext } from "context/user";
+import React, { useContext, useEffect, useState } from "react";
 
 // Component imports
 import { ChatBoxProps } from "./types";
@@ -18,20 +19,19 @@ import { ChatBoxProps } from "./types";
 // let socket = io();
 
 type Message = {
-    author: string;
+    user: string;
     message: string;
 };
 
 const ChatBox = (props: ChatBoxProps) => {
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState<Array<Message>>([]);
+    const { state } = useContext(UserContext);
 
     const onFormSubmit = (e: any) => {
         e.preventDefault();
         // sendMessage();
-        console.log("formsubmitted");
-
-        setMessages([...messages, { author: "You", message }]);
+        setMessages([...messages, { user: state.username, message }]);
     };
 
     // useEffect(() => {
@@ -107,7 +107,7 @@ const ChatBox = (props: ChatBoxProps) => {
                         key={index}
                         alignItems="center"
                         justifyContent={
-                            message.author === props.chosenUsername
+                            message.user === state.username
                                 ? "flex-end"
                                 : "flex-start"
                         }
@@ -116,7 +116,7 @@ const ChatBox = (props: ChatBoxProps) => {
                         <HStack
                             alignItems="center"
                             bg={
-                                message.author === props.chosenUsername
+                                message.user === state.username
                                     ? "player.me"
                                     : "player.opponent"
                             }

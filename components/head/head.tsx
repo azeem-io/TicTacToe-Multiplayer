@@ -5,12 +5,12 @@ import { useRouter } from "next/router";
 
 // Component imports
 import { HeaderProps } from "./types";
-import { metaConfig } from "@/config";
+// import { metaConfig } from "@/config";
 
 // Project imports
 
 const Head = (props: HeaderProps) => {
-    const twitterUsername = metaConfig.twitterUsername;
+    const twitterUsername = "metaConfig.twitterUsername";
     const baseUrl = process.env.NEXT_PUBLIC_VERCEL_URL || process.env.URL;
 
     const router = useRouter();
@@ -58,9 +58,9 @@ const Head = (props: HeaderProps) => {
 };
 
 Head.defaultProps = {
-    title: metaConfig.title,
-    description: metaConfig.description,
-    imageUrl: metaConfig.imageUrl,
+    title: "metaConfig.title",
+    description: "metaConfig.description",
+    imageUrl: "metaConfig.imageUrl",
     socialDescription: "",
     keywords: "",
     robots: "",

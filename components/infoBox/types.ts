@@ -1,3 +1,3 @@
 export interface InfoBoxProps {
-    username: string;
+    // username: string;
 }

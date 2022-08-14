@@ -1,6 +1,7 @@
 // External imports
 import { HStack, Box, Text, Avatar } from "@chakra-ui/react";
-import React from "react";
+import { UserContext } from "context/user";
+import React, { useContext } from "react";
 
 // Component imports
 import { InfoBoxProps } from "./types";
@@ -8,6 +9,8 @@ import { InfoBoxProps } from "./types";
 // Project imports
 
 const InfoBox = (props: InfoBoxProps) => {
+    const { state } = useContext(UserContext);
+
     return (
         <Box
             display={{ sm: "none", lg: "block" }}
@@ -19,7 +22,7 @@ const InfoBox = (props: InfoBoxProps) => {
         >
             <HStack justifyContent="center" w="full" spacing="1rem">
                 <Avatar src="https://bit.ly/broken-link" />
-                <Text fontSize="2rem">{props.username}</Text>
+                <Text fontSize="2rem">{state.username}</Text>
             </HStack>
         </Box>
     );
