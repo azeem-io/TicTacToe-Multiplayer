@@ -8,7 +8,6 @@ import {
     Box,
     Flex,
 } from "@chakra-ui/react";
-import { Form } from "formik";
 import React, { useEffect, useState } from "react";
 
 // Component imports
@@ -16,9 +15,7 @@ import { ChatBoxProps } from "./types";
 
 // Project imports
 
-import io, { Socket } from "socket.io-client";
-
-const socket = io();
+// let socket = io();
 
 type Message = {
     author: string;
@@ -31,51 +28,54 @@ const ChatBox = (props: ChatBoxProps) => {
 
     const onFormSubmit = (e: any) => {
         e.preventDefault();
-        sendMessage();
-        // setMessages([...messages, { author: "You", message }]);
+        // sendMessage();
+        console.log("formsubmitted");
+
+        setMessages([...messages, { author: "You", message }]);
     };
 
-    useEffect(() => {
-        console.log("Add listener");
-        initializeSocket();
-        return () => {
-            console.log("remove listener");
+    // useEffect(() => {
+    //     console.log("Add listener");
+    //     initializeSocket();
+    //     return () => {
+    //         console.log("remove listener");
 
-            removeSocket();
-        };
-    }, []);
+    //         removeSocket();
+    //     };
+    // }, []);
 
-    const initializeSocket = async () => {
-        // We just call it because we don't need anything else out of it
-        // await fetch("/api/socket");
+    // const initializeSocket = async () => {
+    //     // await fetch("/api/socket");
+    //     console.log("initialized");
+    //     socket.on("newIncomingMessage", (msg: any) => {
+    //         if (msg.author === props.chosenUsername) return;
+    //         setMessages((currentMsg) => [
+    //             ...currentMsg,
+    //             { author: msg.author, message: msg.message },
+    //         ]);
 
-        socket.on("newIncomingMessage", (msg: any) => {
-            if (msg.author === props.chosenUsername) return;
-            setMessages((currentMsg) => [
-                ...currentMsg,
-                { author: msg.author, message: msg.message },
-            ]);
+    //         console.log(`"socket initializer" ${message}`);
+    //     });
+    // };
 
-            // console.log(`"socket initializer" ${message}`);
-        });
-    };
+    // const removeSocket = async () => {
+    //     socket.off("newIncomingMessage");
+    // };
 
-    const removeSocket = async () => {
-        socket.off("newIncomingMessage");
-    };
+    // const sendMessage = async () => {
+    //     console.log("inside--- Send Message called");
 
-    const sendMessage = async () => {
-        socket.emit("createdMessage", {
-            author: props.chosenUsername,
-            message: message,
-        });
-        setMessages((currentMsg) => [
-            ...currentMsg,
-            { author: props.chosenUsername, message: message },
-        ]);
-        // console.log(`"Send Message" ${message}`);
-        setMessage("");
-    };
+    //     socket.emit("createdMessage", {
+    //         author: props.chosenUsername,
+    //         message: message,
+    //     });
+    //     setMessages((currentMsg) => [
+    //         ...currentMsg,
+    //         { author: props.chosenUsername, message: message },
+    //     ]);
+    //     console.log(`"Send Message" ${message}`);
+    //     setMessage("");
+    // };
 
     // console.log(`"ChatBox" ${messages}`);
 
@@ -159,9 +159,6 @@ const ChatBox = (props: ChatBoxProps) => {
                             h="2rem"
                             type="submit"
                             borderRadius="0.5rem"
-                            // onClick={() => {
-                            //     handleSubmit();
-                            // }}
                         >
                             Send!
                         </Button>

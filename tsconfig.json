@@ -39,7 +39,8 @@
         "**/*.tsx",
         "**/*.mts",
         "pages/api/socket.js",
-        "utility/socket/messageHandler.jsx"
+        "utility/socket/messageHandler.jsx",
+        "server/src/index.js"
     ],
     "exclude": ["node_modules"],
     "types": ["node", "jest", "@testing-library/jest-dom"],
