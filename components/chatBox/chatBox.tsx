@@ -38,10 +38,6 @@ const ChatBox = (props: ChatBoxProps) => {
         // }
     });
 
-    useSocket("roomUsers", (data: ChatMessageType) => {
-        setChatLog((currentData) => [...currentData, data]);
-    });
-
     // sending message to the server
     const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -103,6 +99,17 @@ const ChatBox = (props: ChatBoxProps) => {
                                 color="text.light"
                                 fontWeight="semibold"
                             >
+                                <HStack alignItems="center">
+                                    <Text fontSize="0.9rem">
+                                        {message.username}
+                                    </Text>
+
+                                    <Text fontSize="0.6rem">
+                                        {message.time}
+                                    </Text>
+                                </HStack>
+                                <Box bg="text.light" h="1px" width="full" />
+                                <Box h="2px" width="full" />
                                 {message.text}
                             </Text>
                         </HStack>
