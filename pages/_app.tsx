@@ -13,17 +13,17 @@ import { useState } from "react";
 
 function MyApp({ Component, pageProps, router }: AppProps) {
     const [username, setUsername] = useState<string>("");
-    // const [room, setRoom] = useState<string>("General");
+    const [room, setRoom] = useState<string>("General");
 
     return (
         <UserContext.Provider
             value={{
                 state: {
                     username,
-                    // room,
+                    room,
                 },
                 setUsername,
-                // setRoom,
+                setRoom,
             }}
         >
             <SocketContext.Provider value={socket}>

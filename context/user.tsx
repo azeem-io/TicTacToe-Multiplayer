@@ -3,25 +3,25 @@ import { createContext, useState } from "react";
 export type UserContextType = {
     state: {
         username: string;
-        // room: string;
+        room: string;
     };
 
     setUsername: (username: string) => void;
-    // setRoom: (room: string) => void;
+    setRoom: (room: string) => void;
 };
 
 const defaultState: UserContextType = {
     state: {
         username: "default",
-        // room: "",
+        room: "",
     },
 
     setUsername: () => {
         console.log("default function");
     },
-    // setRoom: () => {
-    //     console.log("default function");
-    // },
+    setRoom: () => {
+        console.log("default function");
+    },
 };
 
 export const UserContext = createContext<UserContextType>(defaultState);

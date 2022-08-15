@@ -8,76 +8,47 @@ import {
     Box,
     Flex,
 } from "@chakra-ui/react";
-import { UserContext } from "context/user";
 import React, { useContext, useEffect, useState } from "react";
 
 // Component imports
 import { ChatBoxProps } from "./types";
 
 // Project imports
+import { UserContext } from "context/user";
+import { SocketContext } from "@/context/socket";
+import useSocket from "@/hooks/useSocket";
 
-// let socket = io();
-
-type Message = {
-    user: string;
-    message: string;
-};
+interface ChatMessageType {
+    username: string;
+    text: string;
+    time: string;
+}
 
 const ChatBox = (props: ChatBoxProps) => {
     const [message, setMessage] = useState("");
-    const [messages, setMessages] = useState<Array<Message>>([]);
+    // const [messages, setMessages] = useState<Message[]>([]);
+    const [chatLog, setChatLog] = useState<ChatMessageType[]>([]);
     const { state } = useContext(UserContext);
+    const socket = useContext(SocketContext);
 
-    const onFormSubmit = (e: any) => {
+    useSocket("message", (data: ChatMessageType) => {
+        console.log(`ChatLog: ${chatLog.length}`);
+        // if (data.username !== "") {
+        setChatLog((currentData) => [...currentData, data]);
+        // }
+    });
+
+    useSocket("roomUsers", (data: ChatMessageType) => {
+        setChatLog((currentData) => [...currentData, data]);
+    });
+
+    // sending message to the server
+    const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        // sendMessage();
-        setMessages([...messages, { user: state.username, message }]);
+        socket.emit("chatMessage", { message, username: state.username });
+        setMessage("");
+        // setMessages([...messages, { user: state.username, message }]);
     };
-
-    // useEffect(() => {
-    //     console.log("Add listener");
-    //     initializeSocket();
-    //     return () => {
-    //         console.log("remove listener");
-
-    //         removeSocket();
-    //     };
-    // }, []);
-
-    // const initializeSocket = async () => {
-    //     // await fetch("/api/socket");
-    //     console.log("initialized");
-    //     socket.on("newIncomingMessage", (msg: any) => {
-    //         if (msg.author === props.chosenUsername) return;
-    //         setMessages((currentMsg) => [
-    //             ...currentMsg,
-    //             { author: msg.author, message: msg.message },
-    //         ]);
-
-    //         console.log(`"socket initializer" ${message}`);
-    //     });
-    // };
-
-    // const removeSocket = async () => {
-    //     socket.off("newIncomingMessage");
-    // };
-
-    // const sendMessage = async () => {
-    //     console.log("inside--- Send Message called");
-
-    //     socket.emit("createdMessage", {
-    //         author: props.chosenUsername,
-    //         message: message,
-    //     });
-    //     setMessages((currentMsg) => [
-    //         ...currentMsg,
-    //         { author: props.chosenUsername, message: message },
-    //     ]);
-    //     console.log(`"Send Message" ${message}`);
-    //     setMessage("");
-    // };
-
-    // console.log(`"ChatBox" ${messages}`);
 
     return (
         <Flex
@@ -102,12 +73,12 @@ const ChatBox = (props: ChatBoxProps) => {
                 overflowWrap={"anywhere"}
                 padding="0.5rem"
             >
-                {messages.map((message, index) => (
+                {chatLog.map((message, messageId) => (
                     <HStack
-                        key={index}
+                        key={messageId}
                         alignItems="center"
                         justifyContent={
-                            message.user === state.username
+                            message.username === state.username
                                 ? "flex-end"
                                 : "flex-start"
                         }
@@ -116,7 +87,7 @@ const ChatBox = (props: ChatBoxProps) => {
                         <HStack
                             alignItems="center"
                             bg={
-                                message.user === state.username
+                                message.username === state.username
                                     ? "player.me"
                                     : "player.opponent"
                             }
@@ -132,14 +103,14 @@ const ChatBox = (props: ChatBoxProps) => {
                                 color="text.light"
                                 fontWeight="semibold"
                             >
-                                {message.message}
+                                {message.text}
                             </Text>
                         </HStack>
                     </HStack>
                 ))}
             </VStack>
             <Box>
-                <form onSubmit={onFormSubmit}>
+                <form onSubmit={(e) => submitHandler(e)}>
                     <HStack
                         paddingX="0.2rem"
                         h="12%"
@@ -151,11 +122,12 @@ const ChatBox = (props: ChatBoxProps) => {
                             w="14rem"
                             h="2rem"
                             placeholder="Chat..."
+                            required
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                         />
                         <Button
-                            w="5srem"
+                            w="5rem"
                             h="2rem"
                             type="submit"
                             borderRadius="0.5rem"
