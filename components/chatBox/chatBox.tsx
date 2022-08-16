@@ -15,8 +15,7 @@ import { ChatBoxProps } from "./types";
 
 // Project imports
 import { UserContext } from "context/user";
-import { SocketContext } from "@/context/socket";
-import useSocket from "@/hooks/useSocket";
+import { socket } from "@/data/socket";
 
 interface ChatMessageType {
     username: string;
@@ -26,25 +25,37 @@ interface ChatMessageType {
 
 const ChatBox = (props: ChatBoxProps) => {
     const [message, setMessage] = useState("");
-    // const [messages, setMessages] = useState<Message[]>([]);
     const [chatLog, setChatLog] = useState<ChatMessageType[]>([]);
-    const { state } = useContext(UserContext);
-    const socket = useContext(SocketContext);
+    const { username } = useContext(UserContext);
 
-    useSocket("message", (data: ChatMessageType) => {
-        console.log(`ChatLog: ${chatLog.length}`);
-        // if (data.username !== "") {
-        setChatLog((currentData) => [...currentData, data]);
-        // }
-    });
+    // receive message from server
+    const receiveServerMessage = async () => {
+        socket?.on("broadcastMessage", (data: ChatMessageType) => {
+            console.log(`ChatLog: ${chatLog.length}`);
+            setChatLog((currentData) => [...currentData, data]);
+        });
+    };
 
-    // sending message to the server
+    // send message to the server
+    const sendMessage = async () => {
+        socket?.emit("receiveMessage", {
+            message,
+            username,
+        });
+    };
+
     const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        socket.emit("chatMessage", { message, username: state.username });
+        sendMessage();
         setMessage("");
-        // setMessages([...messages, { user: state.username, message }]);
     };
+
+    useEffect(() => {
+        receiveServerMessage();
+        return () => {
+            socket?.off("broadcastMessage");
+        };
+    }, []);
 
     return (
         <Flex
@@ -74,7 +85,7 @@ const ChatBox = (props: ChatBoxProps) => {
                         key={messageId}
                         alignItems="center"
                         justifyContent={
-                            message.username === state.username
+                            message.username === username
                                 ? "flex-end"
                                 : "flex-start"
                         }
@@ -83,7 +94,7 @@ const ChatBox = (props: ChatBoxProps) => {
                         <HStack
                             alignItems="center"
                             bg={
-                                message.username === state.username
+                                message.username === username
                                     ? "player.me"
                                     : "player.opponent"
                             }

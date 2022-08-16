@@ -1,7 +1,7 @@
 // External imports
 import type { NextPage } from "next";
 import { useRouter } from "next/router";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 
 // Project imports
 import Page from "@/components/page";
@@ -9,25 +9,34 @@ import Board from "@/components/board";
 import ChatBox from "@/components/chatBox";
 import InfoBox from "@/components/infoBox";
 import { Flex } from "@chakra-ui/react";
-import { UserContext } from "../context/user";
-import { SocketContext } from "../context/socket";
+import { UserContext } from "@/context/user";
+import { socket } from "@/data/socket";
 
-const Game: NextPage = () => {
-    const { state } = useContext(UserContext);
-    const socket = useContext(SocketContext);
+interface User {
+    id: string;
+    username: string;
+    roomId: string;
+    isPlaying: boolean;
+}
 
+const Room: NextPage = () => {
     const router = useRouter();
-    const room = state.room;
-    const username = state.username;
+    const { roomId } = router.query;
+    const [users, setUsers] = useState<User[]>([]);
+    const { username } = useContext(UserContext);
 
     useEffect(() => {
-        if (username !== "") {
-            setTimeout(() => {
-                socket.emit("joinRoom", { username, room });
-            }, 100);
-        } else {
-            router.push("/");
-        }
+        socket?.emit("joinRoom", {
+            username,
+            roomId,
+        });
+
+        return () => {
+            socket?.emit("leaveRoom", {
+                username,
+                room: roomId,
+            });
+        };
     }, []);
 
     return (
@@ -47,4 +56,4 @@ const Game: NextPage = () => {
     );
 };
 
-export default Game;
+export default Room;

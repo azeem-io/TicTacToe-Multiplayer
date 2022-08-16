@@ -18,67 +18,72 @@ const io = new Server(httpServer, {
         methods: ["GET", "POST"],
     },
 });
-
 app.get("/rooms", (req, res) => {
     res.json(rooms);
+});
+app.get("/users", (req, res) => {
+    res.json(getRoomUsers(req.query.roomId));
+});
+app.get("/", (req, res) => {
+    res.send("Server is running!");
 });
 
 const botName = "Chat Bot";
 
+const updateRoomUsers = (roomId: any) => {
+    io.to(roomId).emit("updateRoomUsers", getRoomUsers(roomId));
+};
+
 // Run when client connects, emit message which catch in main.js
 io.on("connection", (socket) => {
-    console.log("New user connected");
+    console.log("🖧 New user connected");
 
-    socket.on("joinRoom", ({ username, room }) => {
-        const user = userJoin(socket.id, username, room);
-        socket.join(user.room);
-        console.log(` ✔️  ${user.username} joined ${user.room}`);
-        console.log(getRoomUsers(user.room).length);
-
-        // Welcome current user
-        socket.emit(
-            "message",
-            formatMessage(botName, `Joined ${room}. Welcome to chat`)
+    socket.on("joinRoom", ({ username, roomId }) => {
+        const isPlaying = getRoomUsers(roomId).length < 2;
+        const user = userJoin(socket.id, username, roomId, isPlaying);
+        socket.join(roomId);
+        console.log(
+            `✔️ ${username} joined ${roomId} ${isPlaying && "as spectator"}`
         );
+        console.log(`Users present in room: ${getRoomUsers(roomId).length}`);
 
         // Broadcast when a user connects
         socket.broadcast
-            .to(user.room)
+            .to(roomId)
             .emit(
-                "message",
-                formatMessage(botName, `${user.username} has joined the Chat`)
+                "broadcastMessage",
+                formatMessage(
+                    botName,
+                    `${username} has joined the room ${
+                        isPlaying && "as spectator"
+                    }`
+                )
             );
 
         // Send users info and room info
-        io.to(user.room).emit("roomUsers", {
-            room: user.room,
-            users: getRoomUsers(user.room),
-        });
+        updateRoomUsers(roomId);
     });
 
-    // Listen for chatMessage
-    socket.on("chatMessage", ({ username, message }) => {
+    // Listen for receiveMessage
+    socket.on("receiveMessage", ({ username, message }) => {
         // const user = getCurrentUser(socket.id);
-        io.emit("message", formatMessage(username, message));
+        io.emit("broadcastMessage", formatMessage(username, message));
     });
 
     // Run when a user leave the room, WIP
     socket.on("leaveRoom", () => {
         const user = userLeave(socket.id);
         if (user) {
-            socket.leave(user.room);
+            socket.leave(user.roomId);
 
-            console.log(`${user.username} left via leave room `);
-            io.to(user.room).emit(
-                "message",
-                formatMessage(botName, `${user.username} has left the Chat`)
+            console.log(`${user.username} left via 'leave room' `);
+            io.to(user.roomId).emit(
+                "broadcastMessage",
+                formatMessage(botName, `${user.username} left the room`)
             );
 
             // update users and room info when user left
-            io.to(user.room).emit("roomUsers", {
-                room: user.room,
-                users: getRoomUsers(user.room),
-            });
+            updateRoomUsers(user.roomId);
         }
     });
 
@@ -86,19 +91,15 @@ io.on("connection", (socket) => {
     socket.on("disconnect", () => {
         const user = userLeave(socket.id);
         if (user) {
-            socket.leave(user.room);
-            console.log("user disconnected!");
-            console.log(`${user.username} left `);
-            io.to(user.room).emit(
-                "message",
-                formatMessage(botName, `${user.username} has left the Chat`)
+            socket.leave(user.roomId);
+            console.log(`🚪 ${user.username} left `);
+            io.to(user.roomId).emit(
+                "broadcastMessage",
+                formatMessage(botName, `${user.username} left the room`)
             );
 
             // update users and room info when user left
-            io.to(user.room).emit("roomUsers", {
-                room: user.room,
-                users: getRoomUsers(user.room),
-            });
+            updateRoomUsers(user.roomId);
         }
     });
 });

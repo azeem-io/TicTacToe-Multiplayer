@@ -4,35 +4,40 @@ import "../styles/globals.css";
 import type { AppProps } from "next/app";
 import { ChakraProvider } from "@chakra-ui/react";
 
-import { socket, SocketContext } from "context/socket";
+import SocketContext from "context/socket";
 import { UserContext } from "context/user";
 
 import theme from "@/themes/theme";
 import { AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { initSocket } from "@/data/socket";
+// import { io } from "socket.io-client";
 
 function MyApp({ Component, pageProps, router }: AppProps) {
     const [username, setUsername] = useState<string>("");
-    const [room, setRoom] = useState<string>("General");
+
+    useEffect(() => {
+        initSocket();
+    }, []);
 
     return (
         <UserContext.Provider
             value={{
-                state: {
-                    username,
-                    room,
-                },
+                username,
                 setUsername,
-                setRoom,
             }}
         >
-            <SocketContext.Provider value={socket}>
-                <ChakraProvider theme={theme}>
-                    <AnimatePresence exitBeforeEnter>
-                        <Component {...pageProps} key={router.pathname} />
-                    </AnimatePresence>
-                </ChakraProvider>
-            </SocketContext.Provider>
+            {/* <SocketContext.Provider value={socket}> */}
+            <ChakraProvider theme={theme}>
+                <AnimatePresence exitBeforeEnter>
+                    <Component
+                        // socket={socket}
+                        {...pageProps}
+                        key={router.pathname}
+                    />
+                </AnimatePresence>
+            </ChakraProvider>
+            {/* </SocketContext.Provider> */}
         </UserContext.Provider>
     );
 }

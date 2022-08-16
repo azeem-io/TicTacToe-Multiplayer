@@ -1,8 +1,16 @@
 // External imports
 import type { GetStaticProps, NextPage } from "next";
 import { useRouter } from "next/router";
-import { useContext, useState } from "react";
-import { VStack, Heading, Input, Button, Flex, Select } from "@chakra-ui/react";
+import { useContext, useEffect, useState } from "react";
+import {
+    VStack,
+    Heading,
+    Input,
+    Button,
+    Flex,
+    Select,
+    propNames,
+} from "@chakra-ui/react";
 import axios from "axios";
 
 // Project imports
@@ -11,33 +19,56 @@ import Board from "@/components/board";
 import ChatBox from "@/components/chatBox";
 import InfoBox from "@/components/infoBox";
 import { UserContext } from "context/user";
+import { handleFormikSubmit } from "@/utility/formik";
+import { socket } from "@/data/socket";
+
+interface Room {
+    id: string;
+    name: string;
+}
 
 interface IndexPageProps {
-    rooms: string[];
+    rooms: Room[];
 }
 
 export const getStaticProps: GetStaticProps = async () => {
     const res = await axios.get("http://localhost:4000/rooms");
     const rooms = res.data;
 
-    if (!rooms) {
-        return {
-            notFound: true,
-        };
-    }
     return {
         props: { rooms },
     };
 };
 
-const Home: NextPage<IndexPageProps> = ({ rooms }) => {
+const Home: NextPage<IndexPageProps> = (props) => {
     const router = useRouter();
-    const { state, setUsername, setRoom } = useContext(UserContext);
+
+    const [formUsername, setFormUsername] = useState("");
+    const [formRoom, setFormRoom] = useState(props.rooms[0].id);
+    const { username, setUsername } = useContext(UserContext);
+    const [formSubmitted, setFormSubmitted] = useState(false);
+
+    const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setFormSubmitted(true);
+    };
+
+    useEffect(() => {
+        if (formSubmitted) {
+            setFormSubmitted(false);
+            setUsername(formUsername);
+            router.push(`/game/${formRoom}`);
+        }
+    }, [formSubmitted]);
 
     return (
         <>
             <Page bg="brand.primary" title="TTT Multiplayer">
-                <form>
+                <form
+                    onSubmit={(e) => {
+                        submitHandler(e);
+                    }}
+                >
                     <VStack spacing="2rem">
                         <Heading color="white" fontSize="1.5rem">
                             Enter Your Name
@@ -49,29 +80,31 @@ const Home: NextPage<IndexPageProps> = ({ rooms }) => {
                             borderRadius="0.5rem"
                             variant={"underlined"}
                             type="text"
+                            required
                             placeholder="Name..."
                             // value={username}
-                            onChange={(e) => setUsername(e.target.value)}
+                            onChange={(e) => setFormUsername(e.target.value)}
                         />
                         <Select
                             variant="filled"
-                            onChange={(e) => setRoom(e.target.value)}
+                            w="15rem"
+                            required
+                            onChange={(e) => setFormRoom(e.target.value)}
                         >
-                            <option>Select a room</option>
-                            {rooms.map((room, index) => (
-                                <option key={index} value={room}>
-                                    {room}
+                            {props.rooms.map((room, index) => (
+                                <option key={index} value={room.id}>
+                                    {room.name}
                                 </option>
                             ))}
                         </Select>
 
                         <Button
-                            onClick={() => {
-                                console.log(state.room);
-                                router.push("/game");
-                            }}
+                            type="submit"
+                            variant="solid"
+                            color="white"
+                            w="10rem"
                         >
-                            Go!
+                            Enter
                         </Button>
                     </VStack>
                 </form>

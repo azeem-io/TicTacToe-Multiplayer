@@ -7,30 +7,28 @@ import React, { useContext, useEffect, useState } from "react";
 import { InfoBoxProps } from "./types";
 
 // Project imports
-import { SocketContext } from "@/context/socket";
 import { UserContext } from "context/user";
-import useSocket from "@/hooks/useSocket";
-
-interface RoomUserProps {}
+import { socket } from "@/data/socket";
 
 interface User {
     id: string;
     username: string;
     room: string;
+    isPlaying: boolean;
 }
 
 const InfoBox = (props: InfoBoxProps) => {
-    const { state } = useContext(UserContext);
+    const { username } = useContext(UserContext);
     const [users, setUsers] = useState<User[]>([]);
 
-    // get Room users
-    useSocket("roomUsers", ({ room, users }) => {
-        if (state.room === room) {
-            setUsers(users);
-        }
-    });
-
-    const opponent = users.find((user) => user.username !== state.username);
+    useEffect(() => {
+        socket?.on("updateRoomUsers", (updatedUsers: User[]) => {
+            setUsers(updatedUsers);
+        });
+        return () => {
+            socket?.off("updateRoomUsers");
+        };
+    }, []);
 
     return (
         <Box
@@ -42,15 +40,39 @@ const InfoBox = (props: InfoBoxProps) => {
             padding="1rem"
         >
             <VStack spacing={2}>
-                <HStack justifyContent="center" w="full" spacing="1rem">
-                    <Text fontSize="2rem">{state.username}</Text>
-                </HStack>
+                {Array.from(Array(2), (_, index) => {
+                    return (
+                        <HStack
+                            bg="player.me"
+                            justifyContent="center"
+                            w="full"
+                            spacing="1rem"
+                        >
+                            <Text fontSize="2rem">
+                                {users[index]
+                                    ? users[index].username
+                                    : "Waiting for opponent..."}
+                            </Text>
+                        </HStack>
+                    );
+                })}
 
-                {opponent ? (
-                    <Text fontSize="2rem">{opponent.username}</Text>
-                ) : (
-                    <Text> Waiting for opponent...</Text>
-                )}
+                <VStack h="20vh" spacing={2}>
+                    {users
+                        .filter((user: User) => !user.isPlaying)
+                        .map((user: User) => {
+                            return (
+                                <HStack
+                                    bg="gray.300"
+                                    justifyContent="center"
+                                    w="full"
+                                    spacing="1rem"
+                                >
+                                    <Text fontSize="2rem">{user.username}</Text>
+                                </HStack>
+                            );
+                        })}
+                </VStack>
             </VStack>
         </Box>
     );

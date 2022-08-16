@@ -1,3 +1,1 @@
-export interface InfoBoxProps {
-    // username: string;
-}
+export interface InfoBoxProps {}

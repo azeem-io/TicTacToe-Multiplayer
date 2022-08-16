@@ -1,3 +1,1 @@
-export interface ChatBoxProps {
-    // chosenUsername: string;
-}
+export interface ChatBoxProps {}
