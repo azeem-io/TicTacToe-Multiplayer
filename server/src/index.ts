@@ -6,6 +6,7 @@ import {
     getRoomUsers,
     userJoin,
     userLeave,
+    setAsSpectating,
 } from "./utils/users";
 import rooms from "./utils/roomsList";
 import { formatMessage } from "./utils/message";
@@ -73,14 +74,28 @@ io.on("connection", (socket) => {
 
     // emit all room users
     socket.on("getAllRoomUsers", (roomId) => {
-        console.log("client asked for getAllRoomUsers");
         getAllRoomUsers(roomId);
-    }),
-        // Listen for receiveMessage
-        socket.on("receiveMessage", ({ username, message }) => {
-            // const user = getCurrentUser(socket.id);
-            io.emit("broadcastMessage", formatMessage(username, message));
-        });
+    });
+
+    // change user isPlaying status
+    socket.on("setAsSpectating", () => {
+        const user = setAsSpectating(socket.id);
+        updateRoomUsers(user?.roomId);
+        if (user) {
+            socket.broadcast
+                .to(user.roomId)
+                .emit(
+                    "broadcastMessage",
+                    formatMessage(botName, `${user.username} is now spectating`)
+                );
+        }
+    });
+
+    // Listen for receiveMessage
+    socket.on("receiveMessage", ({ username, message }) => {
+        // const user = getCurrentUser(socket.id);
+        io.emit("broadcastMessage", formatMessage(username, message));
+    });
 
     // Run when a user leave the room, WIP
     socket.on("leaveRoom", () => {
@@ -88,13 +103,11 @@ io.on("connection", (socket) => {
         if (user) {
             socket.leave(user.roomId);
 
-            console.log(`${user.username} left via 'leave room' `);
+            console.log(`🚪 ${user.username} left ${user.roomId}`);
             io.to(user.roomId).emit(
                 "broadcastMessage",
-                formatMessage(botName, `${user.username} left the room`)
+                formatMessage(botName, `${user.username} left`)
             );
-
-            // update users and room info when user left
             updateRoomUsers(user.roomId);
         }
     });
@@ -109,8 +122,6 @@ io.on("connection", (socket) => {
                 "broadcastMessage",
                 formatMessage(botName, `${user.username} left the room`)
             );
-
-            // update users and room info when user left
             updateRoomUsers(user.roomId);
         }
     });

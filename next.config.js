@@ -4,6 +4,7 @@
 // const runtimeCaching = require("next-pwa/cache");
 
 const nextConfig = {
+    // reactStrictMode
     swcMinify: true,
     webpack(config) {
         config.module.rules.push({

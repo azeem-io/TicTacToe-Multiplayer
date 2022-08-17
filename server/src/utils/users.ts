@@ -36,6 +36,14 @@ export const userLeave = (id: string) => {
     return;
 };
 
+export const setAsSpectating = (id: any) => {
+    const user = getCurrentUser(id);
+    if (user) {
+        user.isPlaying = false;
+    }
+    return user;
+};
+
 // Get room users
 export const getRoomUsers = (roomId: any) => {
     return users.filter((user) => user.roomId === roomId);

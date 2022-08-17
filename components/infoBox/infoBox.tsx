@@ -1,6 +1,6 @@
 // External imports
-import { HStack, Box, Text, Avatar, VStack } from "@chakra-ui/react";
-import { useRouter } from "next/router";
+import { HStack, Box, Text, Avatar, VStack, Button } from "@chakra-ui/react";
+import Router, { useRouter } from "next/router";
 import React, { useContext, useEffect, useState } from "react";
 
 // Component imports
@@ -18,17 +18,28 @@ interface User {
 }
 
 const InfoBox = (props: InfoBoxProps) => {
-    const { username } = useContext(UserContext);
-    const [users, setUsers] = useState<User[]>([]);
+    const router = useRouter();
+    // const { username } = useContext(UserContext);
+    const [playingUsers, setPlayingUsers] = useState<User[]>([]);
+    const [spectatingUsers, setSpectatingUsers] = useState<User[]>([]);
 
     useEffect(() => {
         socket?.on("updateRoomUsers", (updatedUsers: User[]) => {
-            setUsers(updatedUsers);
+            setSpectatingUsers(updatedUsers.filter((user) => !user.isPlaying));
+            setPlayingUsers(updatedUsers.filter((user) => user.isPlaying));
         });
         return () => {
             socket?.off("updateRoomUsers");
         };
     }, []);
+
+    const leaveRoomHandler = () => {
+        socket?.emit("leaveRoom");
+        router.push("/");
+    };
+    const SpectateHandler = () => {
+        socket?.emit("setAsSpectating");
+    };
 
     return (
         <Box
@@ -39,7 +50,7 @@ const InfoBox = (props: InfoBoxProps) => {
             h="70vh"
             padding="1rem"
         >
-            <VStack spacing={2}>
+            <VStack h="full" spacing={2}>
                 <Text>Players</Text>
                 {Array.from(Array(2), (_, index) => {
                     return (
@@ -49,34 +60,65 @@ const InfoBox = (props: InfoBoxProps) => {
                             justifyContent="center"
                             w="full"
                             spacing="1rem"
+                            padding="0.4rem"
+                            borderRadius="0.5rem"
                         >
-                            <Text fontSize="2rem">
-                                {users[index]
-                                    ? users[index].username
+                            <Text fontSize="1.3rem">
+                                {playingUsers[index]
+                                    ? playingUsers[index].username
                                     : "Waiting for opponent..."}
                             </Text>
                         </HStack>
                     );
                 })}
 
-                <VStack h="20vh" w="full" spacing={2}>
+                <VStack
+                    padding="0.5rem"
+                    bg="gray.300"
+                    h="full"
+                    w="full"
+                    spacing={2}
+                    borderRadius="0.5rem"
+                >
                     <Text>Spectators </Text>
-                    {users
-                        .filter((user: User) => !user.isPlaying)
-                        .map((user: User) => {
-                            return (
-                                <HStack
-                                    key={user.id}
-                                    bg="gray.300"
-                                    justifyContent="center"
-                                    w="full"
-                                    spacing="1rem"
-                                >
-                                    <Text fontSize="2rem">{user.username}</Text>
-                                </HStack>
-                            );
-                        })}
+                    {spectatingUsers.map((user: User) => {
+                        return (
+                            <HStack
+                                key={user.id}
+                                bg="white"
+                                justifyContent="center"
+                                w="full"
+                                spacing="1rem"
+                                padding="0.5rem"
+                                borderRadius="0.5rem"
+                            >
+                                <Text color="text.dark" fontSize="1.5rem">
+                                    {user.username}
+                                </Text>
+                            </HStack>
+                        );
+                    })}
                 </VStack>
+                <HStack saturate={2}>
+                    <Button
+                        bg="player.opponent"
+                        w="7rem"
+                        onClick={() => {
+                            SpectateHandler();
+                        }}
+                    >
+                        Spectate
+                    </Button>
+                    <Button
+                        bg="player.opponent"
+                        w="7rem"
+                        onClick={() => {
+                            leaveRoomHandler();
+                        }}
+                    >
+                        Leave Room
+                    </Button>
+                </HStack>
             </VStack>
         </Box>
     );
