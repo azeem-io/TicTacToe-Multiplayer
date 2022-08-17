@@ -1,16 +1,20 @@
 const colors = {
     brand: {
-        primary: "#121212",
-        secondary: "#F5F5F5",
-        tertiary: "#30475E",
+        primary: "#090909", // for background
+        secondary: "#0E0E0E", // for div containers
+        tertiary: "#E7E502", // yellow accent
     },
     player: {
-        opponent: "#F05454",
-        me: "#4E9F3D",
+        // opponent: "#F05454",
+        opponent: "#BF0426", //new red
+        // me: "#4E9F3D",
+        me: "#69C455",
     },
     text: {
-        dark: "#7F7C82",
-        light: "#F5F5F5",
+        dark: "#010101", //black
+        light: "#FFFFFF", // white
+        red: "#BF0426", // red text
+        box: "#131313", // for text boxes
     },
     error: "#E53E3E",
 };

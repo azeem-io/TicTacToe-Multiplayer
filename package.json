@@ -22,6 +22,7 @@
         "@chakra-ui/react": "^2.2.4",
         "@emotion/react": "^11.9.3",
         "@emotion/styled": "^11.9.3",
+        "@fontsource/fira-sans": "^4.5.9",
         "axios": "^0.27.2",
         "formik": "^2.2.9",
         "framer-motion": "^6.5.1",
@@ -30,7 +31,8 @@
         "react-dom": "18.2.0",
         "react-icons": "^4.4.0",
         "react-use": "^17.4.0",
-        "socket.io-client": "^4.5.1"
+        "socket.io-client": "^4.5.1",
+        "swr": "^1.3.0"
     },
     "devDependencies": {
         "@chakra-ui/cli": "^2.1.2",

@@ -7,11 +7,18 @@ import {
     userJoin,
     userLeave,
     setAsSpectating,
+    getSpectators,
+    getPlayers,
 } from "./utils/users";
-import rooms from "./utils/roomsList";
+import { rooms } from "./utils/roomsList";
 import { formatMessage } from "./utils/message";
+import cors from "cors";
 
-const app = express();
+const app = express().use(
+    cors({
+        origin: "*",
+    })
+);
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
@@ -20,11 +27,20 @@ const io = new Server(httpServer, {
     },
 });
 app.get("/rooms", (req, res) => {
-    res.json(rooms);
+    res.json(
+        rooms.map((room: string, index: number) => ({
+            id: index.toString(),
+            name: room,
+            numPlayers: getPlayers(index.toString()).length,
+            numSpectators: getSpectators(index.toString()).length,
+        }))
+    );
 });
-app.get("/users", (req, res) => {
-    res.json(getRoomUsers(req.query.roomId));
+
+app.get("/roomUsers", (req, res) => {
+    res.json(getRoomUsers(req.query.roomId as string));
 });
+
 app.get("/", (req, res) => {
     res.send("Server is running!");
 });
@@ -35,10 +51,10 @@ const updateRoomUsers = (roomId: any) => {
     io.to(roomId).emit("updateRoomUsers", getRoomUsers(roomId));
 };
 
-const getAllRoomUsers = async (roomId: string) => {
-    const sockets = await io.in(roomId).fetchSockets();
-    io.emit("receiveAllRoomUsers", sockets.length);
-};
+// const getAllRoomUsers = async (roomId: string) => {
+//     const sockets = await io.in(roomId).fetchSockets();
+//     io.emit("receiveAllRoomUsers", sockets.length);
+// };
 
 // Run when client connects, emit message which catch in main.js
 io.on("connection", (socket) => {
@@ -73,9 +89,9 @@ io.on("connection", (socket) => {
     });
 
     // emit all room users
-    socket.on("getAllRoomUsers", (roomId) => {
-        getAllRoomUsers(roomId);
-    });
+    // socket.on("getAllRoomUsers", (roomId) => {
+    //     getAllRoomUsers(roomId);
+    // });
 
     // change user isPlaying status
     socket.on("setAsSpectating", () => {

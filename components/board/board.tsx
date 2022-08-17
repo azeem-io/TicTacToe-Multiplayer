@@ -10,7 +10,7 @@ import { BoardProps, HLineProps, VLineProps } from "./types";
 const HLine = (props: HLineProps) => {
     return (
         <Box
-            bg="brand.primary"
+            bg="brand.tertiary"
             h="22rem"
             w="0.5rem"
             position="absolute"
@@ -22,7 +22,7 @@ const HLine = (props: HLineProps) => {
 const VLine = (props: VLineProps) => {
     return (
         <Box
-            bg="brand.primary"
+            bg="brand.tertiary"
             h="0.5rem"
             w="22rem"
             position="absolute"

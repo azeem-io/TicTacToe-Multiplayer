@@ -1,23 +1,25 @@
 * {
-  -webkit-tap-highlight-color: transparent;
-  /* outline: 1px solid #f00 !important; */
+    -webkit-tap-highlight-color: transparent;
+    /* outline: 1px solid #f00 !important; */
 }
 
-html, body, main, footer {
-  width: 100%;
+html,
+body,
+main,
+footer {
+    width: 100%;
 }
 
-/* ::-webkit-scrollbar {
-  width: 18px;
+::-webkit-scrollbar {
+    width: 18px;
     height: 18px;
 
-    
     background-color: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  border-radius: 1000px;
+    border-radius: 1000px;
     border: 8px solid transparent;
     background-clip: padding-box;
-    background-color: var(--chakra-colors-text-primary);
-} */
+    background-color: #ffffff;
+}

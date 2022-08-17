@@ -71,7 +71,7 @@ const ChatBox = (props: ChatBoxProps) => {
         >
             <VStack
                 borderRadius="0.5rem"
-                h="88%"
+                h="86%"
                 w="100%"
                 spacing="1rem"
                 bg="brand.primary"
@@ -95,8 +95,8 @@ const ChatBox = (props: ChatBoxProps) => {
                             alignItems="center"
                             bg={
                                 message.username === username
-                                    ? "player.me"
-                                    : "player.opponent"
+                                    ? "brand.tertiary"
+                                    : "text.red"
                             }
                             paddingX="0.5rem"
                             borderRadius="0.5rem"
@@ -131,6 +131,7 @@ const ChatBox = (props: ChatBoxProps) => {
                 <form onSubmit={(e) => submitHandler(e)}>
                     <HStack
                         paddingX="0.2rem"
+                        paddingTop="0.4rem"
                         h="12%"
                         width="full"
                         justifyContent="center"

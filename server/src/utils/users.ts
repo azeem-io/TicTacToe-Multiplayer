@@ -9,9 +9,9 @@ const users: User[] = [];
 
 // Join user to chat
 export const userJoin = (
-    id: any,
+    id: string,
     username: string,
-    roomId: any,
+    roomId: string,
     isPlaying: boolean
 ) => {
     const user = { id, username, roomId, isPlaying };
@@ -20,7 +20,7 @@ export const userJoin = (
 };
 
 // Get current user
-export const getCurrentUser = (id: any) => {
+export const getCurrentUser = (id: string) => {
     return users.find((user) => user.id === id);
 };
 
@@ -36,7 +36,7 @@ export const userLeave = (id: string) => {
     return;
 };
 
-export const setAsSpectating = (id: any) => {
+export const setAsSpectating = (id: string) => {
     const user = getCurrentUser(id);
     if (user) {
         user.isPlaying = false;
@@ -44,7 +44,14 @@ export const setAsSpectating = (id: any) => {
     return user;
 };
 
-// Get room users
-export const getRoomUsers = (roomId: any) => {
+export const getRoomUsers = (roomId: string) => {
     return users.filter((user) => user.roomId === roomId);
+};
+
+export const getPlayers = (roomId: string) => {
+    return getRoomUsers(roomId).filter((user) => user.isPlaying);
+};
+
+export const getSpectators = (roomId: string) => {
+    return getRoomUsers(roomId).filter((user) => !user.isPlaying);
 };

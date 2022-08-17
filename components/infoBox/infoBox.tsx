@@ -9,6 +9,7 @@ import { InfoBoxProps } from "./types";
 // Project imports
 import { UserContext } from "context/user";
 import { socket } from "@/data/socket";
+import CustomButton from "../customButton";
 
 interface User {
     id: string;
@@ -37,7 +38,7 @@ const InfoBox = (props: InfoBoxProps) => {
         socket?.emit("leaveRoom");
         router.push("/");
     };
-    const SpectateHandler = () => {
+    const spectateHandler = () => {
         socket?.emit("setAsSpectating");
     };
 
@@ -51,17 +52,20 @@ const InfoBox = (props: InfoBoxProps) => {
             padding="1rem"
         >
             <VStack h="full" spacing={2}>
-                <Text>Players</Text>
+                <Text fontWeight={600} color="text.light">
+                    PLAYERS
+                </Text>
                 {Array.from(Array(2), (_, index) => {
                     return (
                         <HStack
                             key={index}
-                            bg="player.me"
+                            bg="text.box"
                             justifyContent="center"
                             w="full"
                             spacing="1rem"
                             padding="0.4rem"
-                            borderRadius="0.5rem"
+                            borderRadius="0.2rem"
+                            color="text.light"
                         >
                             <Text fontSize="1.3rem">
                                 {playingUsers[index]
@@ -74,50 +78,36 @@ const InfoBox = (props: InfoBoxProps) => {
 
                 <VStack
                     padding="0.5rem"
-                    bg="gray.300"
+                    bg="brand.primary"
                     h="full"
                     w="full"
                     spacing={2}
-                    borderRadius="0.5rem"
+                    borderRadius="0.3rem"
                 >
-                    <Text>Spectators </Text>
+                    <Text color="text.light">SPECTATORS </Text>
                     {spectatingUsers.map((user: User) => {
                         return (
                             <HStack
                                 key={user.id}
-                                bg="white"
+                                bg="text.box"
                                 justifyContent="center"
                                 w="full"
                                 spacing="1rem"
                                 padding="0.5rem"
-                                borderRadius="0.5rem"
+                                borderRadius="0.2rem"
+                                color="text.light"
                             >
-                                <Text color="text.dark" fontSize="1.5rem">
+                                <Text color="text.light" fontSize="1.5rem">
                                     {user.username}
                                 </Text>
                             </HStack>
                         );
                     })}
                 </VStack>
-                <HStack saturate={2}>
-                    <Button
-                        bg="player.opponent"
-                        w="7rem"
-                        onClick={() => {
-                            SpectateHandler();
-                        }}
-                    >
-                        Spectate
-                    </Button>
-                    <Button
-                        bg="player.opponent"
-                        w="7rem"
-                        onClick={() => {
-                            leaveRoomHandler();
-                        }}
-                    >
-                        Leave Room
-                    </Button>
+                <HStack paddingY="0.4rem">
+                    <CustomButton text="SPECTATE" onClick={spectateHandler} />
+                    <CustomButton text="VOTE KICK" onClick={leaveRoomHandler} />
+                    <CustomButton text="LEAVE" onClick={leaveRoomHandler} />
                 </HStack>
             </VStack>
         </Box>
