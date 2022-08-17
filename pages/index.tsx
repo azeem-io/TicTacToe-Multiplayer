@@ -7,7 +7,7 @@ import {
     Heading,
     Input,
     Button,
-    Flex,
+    Text,
     Select,
     propNames,
 } from "@chakra-ui/react";
@@ -42,10 +42,11 @@ export const getStaticProps: GetStaticProps = async () => {
 
 const Home: NextPage<IndexPageProps> = (props) => {
     const router = useRouter();
+    const { username, setUsername } = useContext(UserContext);
 
     const [formUsername, setFormUsername] = useState("");
     const [formRoom, setFormRoom] = useState(props.rooms[0].id);
-    const { username, setUsername } = useContext(UserContext);
+    const [roomUsers, setRoomUsers] = useState(0);
     const [formSubmitted, setFormSubmitted] = useState(false);
 
     const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
@@ -60,6 +61,19 @@ const Home: NextPage<IndexPageProps> = (props) => {
             router.push(`/game/${formRoom}`);
         }
     }, [formSubmitted]);
+
+    useEffect(() => {
+        socket?.emit("getAllRoomUsers", formRoom);
+    }, [formRoom]);
+
+    useEffect(() => {
+        socket?.on("receiveAllRoomUsers", (userCount) => {
+            setRoomUsers(userCount);
+        });
+        return () => {
+            socket?.off("getAllRoomUsers");
+        };
+    }, []);
 
     return (
         <>
@@ -106,6 +120,16 @@ const Home: NextPage<IndexPageProps> = (props) => {
                         >
                             Enter
                         </Button>
+                        <VStack spacing="0.2rem" h="3rem">
+                            <Text color="white" fontSize="1.5rem">
+                                {roomUsers} users in room
+                            </Text>
+                            {roomUsers >= 2 ? (
+                                <Text color="white" fontSize="1rem">
+                                    You will join as a spectator
+                                </Text>
+                            ) : null}
+                        </VStack>
                     </VStack>
                 </form>
             </Page>

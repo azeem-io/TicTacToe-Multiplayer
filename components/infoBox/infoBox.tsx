@@ -40,9 +40,11 @@ const InfoBox = (props: InfoBoxProps) => {
             padding="1rem"
         >
             <VStack spacing={2}>
+                <Text>Players</Text>
                 {Array.from(Array(2), (_, index) => {
                     return (
                         <HStack
+                            key={index}
                             bg="player.me"
                             justifyContent="center"
                             w="full"
@@ -57,12 +59,14 @@ const InfoBox = (props: InfoBoxProps) => {
                     );
                 })}
 
-                <VStack h="20vh" spacing={2}>
+                <VStack h="20vh" w="full" spacing={2}>
+                    <Text>Spectators </Text>
                     {users
                         .filter((user: User) => !user.isPlaying)
                         .map((user: User) => {
                             return (
                                 <HStack
+                                    key={user.id}
                                     bg="gray.300"
                                     justifyContent="center"
                                     w="full"

@@ -34,6 +34,11 @@ const updateRoomUsers = (roomId: any) => {
     io.to(roomId).emit("updateRoomUsers", getRoomUsers(roomId));
 };
 
+const getAllRoomUsers = async (roomId: string) => {
+    const sockets = await io.in(roomId).fetchSockets();
+    io.emit("receiveAllRoomUsers", sockets.length);
+};
+
 // Run when client connects, emit message which catch in main.js
 io.on("connection", (socket) => {
     console.log("🖧 New user connected");
@@ -43,8 +48,10 @@ io.on("connection", (socket) => {
         const user = userJoin(socket.id, username, roomId, isPlaying);
         socket.join(roomId);
         console.log(
-            `✔️ ${username} joined ${roomId} ${isPlaying && "as spectator"}`
-        );
+            `✔️  ${username} joined ${roomId} ${
+                !isPlaying ? "as spectator" : ""
+            }`
+        ); //${ isPlaying && "as spectator"}
         console.log(`Users present in room: ${getRoomUsers(roomId).length}`);
 
         // Broadcast when a user connects
@@ -55,7 +62,7 @@ io.on("connection", (socket) => {
                 formatMessage(
                     botName,
                     `${username} has joined the room ${
-                        isPlaying && "as spectator"
+                        !isPlaying ? "as spectator" : ""
                     }`
                 )
             );
@@ -64,11 +71,16 @@ io.on("connection", (socket) => {
         updateRoomUsers(roomId);
     });
 
-    // Listen for receiveMessage
-    socket.on("receiveMessage", ({ username, message }) => {
-        // const user = getCurrentUser(socket.id);
-        io.emit("broadcastMessage", formatMessage(username, message));
-    });
+    // emit all room users
+    socket.on("getAllRoomUsers", (roomId) => {
+        console.log("client asked for getAllRoomUsers");
+        getAllRoomUsers(roomId);
+    }),
+        // Listen for receiveMessage
+        socket.on("receiveMessage", ({ username, message }) => {
+            // const user = getCurrentUser(socket.id);
+            io.emit("broadcastMessage", formatMessage(username, message));
+        });
 
     // Run when a user leave the room, WIP
     socket.on("leaveRoom", () => {
