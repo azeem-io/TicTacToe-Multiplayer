@@ -78,7 +78,7 @@ io.on("connection", (socket) => {
                 "broadcastMessage",
                 formatMessage(
                     botName,
-                    `${username} has joined the room ${
+                    `${user.username} has joined the room ${
                         !isPlaying ? "as spectator" : ""
                     }`
                 )

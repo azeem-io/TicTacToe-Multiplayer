@@ -38,7 +38,7 @@ export const userLeave = (id: string) => {
 
 export const setAsSpectating = (id: string) => {
     const user = getCurrentUser(id);
-    if (user) {
+    if (user && user.isPlaying) {
         user.isPlaying = false;
     }
     return user;
