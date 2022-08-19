@@ -13,47 +13,42 @@ import { UserContext } from "@/context/user";
 import { socket } from "@/data/socket";
 
 interface User {
-    id: string;
-    username: string;
-    roomId: string;
-    isPlaying: boolean;
+   id: string;
+   username: string;
+   roomId: string;
+   isPlaying: boolean;
 }
 
 const Room: NextPage = () => {
-    const router = useRouter();
-    const { roomId } = router.query;
-    const [users, setUsers] = useState<User[]>([]);
-    const { username } = useContext(UserContext);
+   const router = useRouter();
+   const { roomId } = router.query;
+   const [users, setUsers] = useState<User[]>([]);
+   const { username } = useContext(UserContext);
 
-    useEffect(() => {
-        socket?.emit("joinRoom", {
+   useEffect(() => {
+      return () => {
+         socket?.emit("leaveRoom", {
             username,
-            roomId,
-        });
+            room: roomId,
+         });
+      };
+   }, []);
 
-        return () => {
-            socket?.emit("leaveRoom", {
-                username,
-                room: roomId,
-            });
-        };
-    }, []);
-
-    return (
-        <Page title="Game">
-            <Flex
-                flexDirection={{ sm: "column", lg: "row" }}
-                padding="3rem"
-                alignItems={{ sm: "center", lg: "space-between" }}
-                gap="5rem"
-                w="full"
-            >
-                <InfoBox />
-                <Board />
-                <ChatBox />
-            </Flex>
-        </Page>
-    );
+   return (
+      <Page title="Game">
+         <Flex
+            flexDirection={{ sm: "column", lg: "row" }}
+            padding="3rem"
+            alignItems={{ sm: "center", lg: "space-between" }}
+            gap="5rem"
+            w="full"
+         >
+            <InfoBox roomId={roomId as string} />
+            <Board />
+            <ChatBox />
+         </Flex>
+      </Page>
+   );
 };
 
 export default Room;

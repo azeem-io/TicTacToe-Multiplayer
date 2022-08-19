@@ -3,16 +3,20 @@ import type { GetStaticProps, NextPage } from "next";
 import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
 import {
-    VStack,
-    Heading,
-    Input,
-    Button,
-    Text,
-    Select,
-    propNames,
-    HStack,
-    Spacer,
-    Spinner,
+   VStack,
+   Heading,
+   Input,
+   Button,
+   Text,
+   Select,
+   propNames,
+   HStack,
+   Spacer,
+   Spinner,
+   useDisclosure,
+   ModalHeader,
+   Box,
+   Tooltip,
 } from "@chakra-ui/react";
 import axios from "axios";
 
@@ -26,173 +30,232 @@ import { handleFormikSubmit } from "@/utility/formik";
 import { socket } from "@/data/socket";
 import useSWR, { useSWRConfig } from "swr";
 import CustomButton from "@/components/customButton";
+import { fetcher } from "@/utility/fetch";
 
 export interface Room {
-    id: string;
-    name: string;
-    numPlayers: number;
-    numSpectators: number;
+   id: string;
+   name: string;
+   numPlayers: number;
+   numSpectators: number;
 }
 
 interface IndexPageProps {
-    rooms: Room[];
+   rooms: Room[];
 }
 
-const fetcher = (url: string) =>
-    axios
-        .get(url, {
-            headers: { "Access-Control-Allow-Origin": "*" },
-        })
-        .then((res) => res.data);
+enum EnterState {
+   Lobby,
+   Play,
+   Spectate,
+}
 
 const Home: NextPage<IndexPageProps> = (props) => {
-    const { data: rooms, isValidating } = useSWR(
-        "http://localhost:4000/rooms",
-        fetcher
-    );
-    const { mutate } = useSWRConfig();
+   const { data: rooms, isValidating } = useSWR<Room[]>(
+      "http://localhost:4000/rooms",
+      fetcher
+   );
+   const { mutate } = useSWRConfig();
 
-    const router = useRouter();
-    const { username, setUsername } = useContext(UserContext);
+   const router = useRouter();
+   const { username, setUsername } = useContext(UserContext);
 
-    const [formUsername, setFormUsername] = useState("");
-    const [formRoom, setFormRoom] = useState("");
-    const [roomUsers, setRoomUsers] = useState(0);
-    const [formSubmitted, setFormSubmitted] = useState(false);
+   const [formUsername, setFormUsername] = useState("");
+   const [formRoom, setFormRoom] = useState("");
+   const [enterState, setEnterState] = useState<EnterState>(EnterState.Lobby);
 
-    const submitHandler = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        setFormSubmitted(true);
-    };
+   useEffect(() => {
+      if (enterState !== EnterState.Lobby) {
+         setUsername(formUsername);
+         socket?.emit("joinRoom", {
+            username: formUsername,
+            roomId: formRoom,
+            isPlaying: enterState === EnterState.Play, //return true/false
+         });
+         setEnterState(EnterState.Lobby);
+         router.push(`/game/${formRoom}`);
+      }
+   }, [enterState]);
 
-    useEffect(() => {
-        if (formSubmitted) {
-            setFormSubmitted(false);
-            setUsername(formUsername);
-            router.push(`/game/${formRoom}`);
-        }
-    }, [formSubmitted]);
+   useEffect(() => {
+      setFormUsername(username);
+   }, [username]);
 
-    return (
-        <>
-            <Page bg="brand.primary" title="TTT Multiplayer">
-                <form
-                    onSubmit={(e) => {
-                        submitHandler(e);
-                    }}
-                >
-                    <VStack spacing="1.5rem">
-                        <Heading color="white" fontSize="1.5rem">
-                            Enter Your Name
-                        </Heading>
-                        {/* make this a form to allow submit with 'Enter' */}
-                        <Input
-                            padding="0.5rem"
-                            width="15rem"
-                            borderRadius="0.5rem"
-                            variant={"underlined"}
-                            type="text"
-                            required
-                            placeholder="Name..."
-                            // value={username}
-                            onChange={(e) => setFormUsername(e.target.value)}
-                        />
-                        <VStack spacing="0.5rem">
-                            <HStack
-                                color="text.light"
-                                fontSize="0.7rem"
-                                w="30vw"
-                                h="1rem"
-                                justifyContent="flex-end"
-                                paddingRight="1.6rem"
-                                spacing="0.8rem"
-                            >
-                                <Text>ROOM NAME</Text>
-                                <Spacer />
-                                <Text>PLAYERS</Text>
-                                <Text>SPECTATORS</Text>
-                            </HStack>
-                            <VStack
-                                w="30vw"
-                                h="12rem"
-                                overflowY="scroll"
-                                spacing="0.5rem"
-                            >
-                                {rooms?.map((room: Room, index: number) => (
-                                    <HStack
-                                        w="full"
-                                        h="2rem"
-                                        bg="text.box"
-                                        padding={"0.5rem"}
-                                        justifyContent="space-between"
-                                        key={index}
-                                        alignItems="center"
-                                        color="text.light"
-                                        onClick={() => setFormRoom(room.id)}
-                                    >
-                                        <Text>
-                                            {!room ? "loading..." : room.name}
-                                        </Text>
-                                        <HStack
-                                            spacing="2.8rem"
-                                            paddingRight="2rem"
-                                        >
-                                            <Text>
-                                                {!room ? (
-                                                    <Spinner />
-                                                ) : (
-                                                    room.numPlayers
-                                                )}
-                                                /2
-                                            </Text>
-                                            <Text>
-                                                {!room ? (
-                                                    <Spinner />
-                                                ) : (
-                                                    room.numSpectators
-                                                )}
-                                            </Text>
-                                            {/* <Text>5</Text> */}
-                                        </HStack>
-                                    </HStack>
-                                ))}
-                            </VStack>
-                        </VStack>
+   useEffect(() => {}, []);
+
+   const isRoomFull = (): boolean => {
+      if (rooms) {
+         return rooms.find((room) => room.id === formRoom)?.numPlayers === 2;
+      }
+      return false;
+   };
+
+   const canPlay = (): boolean => {
+      return (formUsername && formRoom && !isRoomFull()) as boolean;
+   };
+   const canSpectate = (): boolean => {
+      return !(!formUsername || !formRoom);
+   };
+
+   return (
+      <>
+         <Page bg="brand.primary" title="TTT Multiplayer">
+            <VStack spacing="3rem">
+               <VStack spacing="1rem">
+                  <Heading color="white" fontSize="1.5rem">
+                     Enter Your Name
+                  </Heading>
+                  <Input
+                     padding="0.5rem"
+                     width="15rem"
+                     borderRadius="0.5rem"
+                     variant={"underlined"}
+                     defaultValue={username}
+                     type="text"
+                     required
+                     placeholder="Name..."
+                     // value={username}
+                     onChange={(e) => {
+                        setFormUsername(e.target.value);
+                        // console.log(e.target.value);
+                     }}
+                  />
+               </VStack>
+               <VStack spacing="0.5rem">
+                  <HStack
+                     color="text.light"
+                     fontSize="0.7rem"
+                     w="30vw"
+                     h="1rem"
+                     justifyContent="flex-end"
+                     paddingRight="1.6rem"
+                     spacing="0.8rem"
+                  >
+                     <Text>ROOM NAME</Text>
+                     <Spacer />
+                     <Text>PLAYERS</Text>
+                     <Text>SPECTATORS</Text>
+                  </HStack>
+                  <VStack
+                     w="30vw"
+                     h="12rem"
+                     overflowY="scroll"
+                     spacing="0.5rem"
+                  >
+                     {rooms?.map((room: Room, index: number) => (
                         <HStack
-                            w="29vw"
-                            justifyContent="space-between"
-                            spacing={"2rem"}
+                           w="full"
+                           h="2rem"
+                           bg={
+                              formRoom === room.id
+                                 ? "brand.tertiary"
+                                 : "text.box"
+                           }
+                           color={
+                              formRoom === room.id ? "text.dark" : "text.light"
+                           }
+                           padding={"0.5rem"}
+                           justifyContent="space-between"
+                           key={index}
+                           alignItems="center"
+                           onClick={() => setFormRoom(room.id)}
+                           cursor="pointer"
                         >
-                            <Button
-                                type="submit"
-                                variant="solid"
-                                bg="brand.tertiary"
-                                color="text.dark"
-                                fontSize="1.1rem"
-                                fontWeight={500}
-                                w="10rem"
-                            >
-                                Enter
-                            </Button>
-                            <Button
-                                variant="solid"
-                                bg="brand.tertiary"
-                                color="text.dark"
-                                fontSize="1.1rem"
-                                fontWeight={500}
-                                w="6rem"
-                                onClick={() => {
-                                    mutate("http://localhost:4000/rooms");
-                                }}
-                            >
-                                {isValidating ? <Spinner /> : "Refresh"}
-                            </Button>
+                           <Text>{!room ? "loading..." : room.name}</Text>
+                           <HStack spacing="2.8rem" paddingRight="1.9rem">
+                              <Text>
+                                 {!room ? <Spinner /> : room.numPlayers}
+                                 /2
+                              </Text>
+                              <Text>
+                                 {!room ? <Spinner /> : room.numSpectators}
+                              </Text>
+                              {/* <Text>5</Text> */}
+                           </HStack>
                         </HStack>
-                    </VStack>
-                </form>
-            </Page>
-        </>
-    );
+                     ))}
+                  </VStack>
+                  <Box h="0.3rem" w="full" />
+                  <HStack
+                     // justifyContent="space-between"
+                     spacing={"0.7rem"}
+                     pr="1rem"
+                     w="full"
+                  >
+                     <Tooltip
+                        isDisabled={canPlay()}
+                        label={
+                           !formUsername
+                              ? "Please enter a username"
+                              : !formRoom
+                              ? "Please select a room"
+                              : isRoomFull()
+                              ? "The selected room is full"
+                              : ""
+                        }
+                        shouldWrapChildren
+                     >
+                        <Button
+                           variant="solid"
+                           bg="brand.tertiary"
+                           color="text.dark"
+                           fontSize="1rem"
+                           fontWeight={600}
+                           size={"sm"}
+                           isDisabled={!canPlay()}
+                           onClick={() => {
+                              setEnterState(EnterState.Play);
+                           }}
+                        >
+                           PLAY
+                        </Button>
+                     </Tooltip>
+                     <Tooltip
+                        isDisabled={canSpectate()}
+                        label={
+                           !formUsername
+                              ? "Please enter a username"
+                              : !formRoom
+                              ? "Please select a room"
+                              : ""
+                        }
+                        shouldWrapChildren
+                     >
+                        <Button
+                           variant="solid"
+                           bg="brand.tertiary"
+                           color="text.dark"
+                           fontSize="1rem"
+                           fontWeight={600}
+                           size={"sm"}
+                           disabled={!canSpectate()}
+                           onClick={() => {
+                              setEnterState(EnterState.Spectate);
+                           }}
+                        >
+                           SPECTATE
+                        </Button>
+                     </Tooltip>
+                     <Spacer />
+                     <Button
+                        variant="solid"
+                        bg="brand.tertiary"
+                        color="text.dark"
+                        fontSize="1rem"
+                        fontWeight={600}
+                        w="5rem"
+                        size={"sm"}
+                        onClick={() => {
+                           mutate("http://localhost:4000/rooms");
+                        }}
+                     >
+                        {isValidating ? <Spinner /> : "REFRESH"}
+                     </Button>
+                  </HStack>
+               </VStack>
+            </VStack>
+         </Page>
+      </>
+   );
 };
 
 export default Home;

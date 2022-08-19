@@ -1,1 +1,3 @@
-export interface InfoBoxProps {}
+export interface InfoBoxProps {
+   roomId: string;
+}
