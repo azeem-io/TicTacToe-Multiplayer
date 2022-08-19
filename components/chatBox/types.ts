@@ -1,1 +1,3 @@
-export interface ChatBoxProps {}
+export interface ChatBoxProps {
+   roomId: string;
+}

@@ -41,6 +41,7 @@ const ChatBox = (props: ChatBoxProps) => {
       socket?.emit("receiveMessage", {
          message,
          username,
+         roomId: props.roomId,
       });
    };
 

@@ -90,9 +90,9 @@ io.on("connection", (socket) => {
    });
 
    // Listen for receiveMessage
-   socket.on("receiveMessage", ({ username, message }) => {
+   socket.on("receiveMessage", ({ username, message, roomId }) => {
       // const user = getCurrentUser(socket.id);
-      io.emit("broadcastMessage", formatMessage(username, message));
+      io.to(roomId).emit("broadcastMessage", formatMessage(username, message));
    });
 
    // Run when a user leave the room, WIP

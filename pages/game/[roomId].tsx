@@ -45,7 +45,7 @@ const Room: NextPage = () => {
          >
             <InfoBox roomId={roomId as string} />
             <Board />
-            <ChatBox />
+            <ChatBox roomId={roomId as string} />
          </Flex>
       </Page>
    );
