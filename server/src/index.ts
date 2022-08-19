@@ -68,10 +68,11 @@ io.on("connection", (socket) => {
          .emit(
             "broadcastMessage",
             formatMessage(
-               botName,
+               "",
                `${username} has joined the room ${
                   !isPlaying ? "as spectator" : ""
-               }`
+               }`,
+               socket.id
             )
          );
 
@@ -92,7 +93,10 @@ io.on("connection", (socket) => {
    // Listen for receiveMessage
    socket.on("receiveMessage", ({ username, message, roomId }) => {
       // const user = getCurrentUser(socket.id);
-      io.to(roomId).emit("broadcastMessage", formatMessage(username, message));
+      io.to(roomId).emit(
+         "broadcastMessage",
+         formatMessage(username, message, socket.id)
+      );
    });
 
    // Run when a user leave the room, WIP
@@ -104,7 +108,7 @@ io.on("connection", (socket) => {
          console.log(`🚪 ${user.username} left ${user.roomId}`);
          io.to(user.roomId).emit(
             "broadcastMessage",
-            formatMessage(botName, `${user.username} left`)
+            formatMessage("", `${user.username} left`, socket.id)
          );
          updateRoomUsers(user.roomId);
       }
@@ -118,7 +122,7 @@ io.on("connection", (socket) => {
          console.log(`🚪 ${user.username} left `);
          io.to(user.roomId).emit(
             "broadcastMessage",
-            formatMessage(botName, `${user.username} left the room`)
+            formatMessage("", `${user.username} left the room`, socket.id)
          );
          updateRoomUsers(user.roomId);
       }

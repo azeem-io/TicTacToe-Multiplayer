@@ -21,12 +21,14 @@ interface ChatMessageType {
    username: string;
    text: string;
    time: string;
+   id: string;
 }
 
 const ChatBox = (props: ChatBoxProps) => {
    const [message, setMessage] = useState("");
    const [chatLog, setChatLog] = useState<ChatMessageType[]>([]);
    const { username } = useContext(UserContext);
+   const roomId = props.roomId;
 
    // receive message from server
    const receiveServerMessage = async () => {
@@ -41,7 +43,7 @@ const ChatBox = (props: ChatBoxProps) => {
       socket?.emit("receiveMessage", {
          message,
          username,
-         roomId: props.roomId,
+         roomId,
       });
    };
 
@@ -57,6 +59,10 @@ const ChatBox = (props: ChatBoxProps) => {
          socket?.off("broadcastMessage");
       };
    }, []);
+
+   const isSelf = (messageId: string) => {
+      return socket?.id === messageId;
+   };
 
    return (
       <Flex
@@ -87,17 +93,13 @@ const ChatBox = (props: ChatBoxProps) => {
                   key={messageId}
                   alignItems="center"
                   justifyContent={
-                     message.username === username ? "flex-end" : "flex-start"
+                     isSelf(message.id) ? "flex-end" : "flex-start"
                   }
                   w="full"
                >
                   <HStack
                      alignItems="center"
-                     bg={
-                        message.username === username
-                           ? "brand.tertiary"
-                           : "text.red"
-                     }
+                     bg={isSelf(message.id) ? "brand.tertiary" : "text.red"}
                      paddingX="0.5rem"
                      borderRadius="0.5rem"
                      textOverflow="ellipsis"
@@ -107,11 +109,7 @@ const ChatBox = (props: ChatBoxProps) => {
                      {/* <Text fontSize="0.7rem">{message.author}:</Text> */}
                      <Text
                         noOfLines={10}
-                        color={
-                           message.username === username
-                              ? "text.dark"
-                              : "text.light"
-                        }
+                        color={isSelf(message.id) ? "text.dark" : "text.light"}
                         fontWeight="semibold"
                      >
                         <HStack alignItems="center">
@@ -120,11 +118,7 @@ const ChatBox = (props: ChatBoxProps) => {
                            <Text fontSize="0.6rem">{message.time}</Text>
                         </HStack>
                         <Box
-                           bg={
-                              message.username === username
-                                 ? "text.dark"
-                                 : "text.light"
-                           }
+                           bg={isSelf(message.id) ? "text.dark" : "text.light"}
                            h="1px"
                            width="full"
                         />

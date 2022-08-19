@@ -50,7 +50,7 @@ export const setAsSpectating = (id: string, socket: any) => {
          .to(user.roomId)
          .emit(
             "broadcastMessage",
-            formatMessage("Chat Bot", `${user.username} is now spectating`)
+            formatMessage("Chat Bot", `${user.username} is now spectating`, id)
          );
       // }
    }
