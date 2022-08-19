@@ -64,10 +64,10 @@ const InfoBox = (props: InfoBoxProps) => {
 
    return (
       <Box
-         display={{ sm: "none", lg: "block" }}
+         // display={{ sm: "none", lg: "block" }}
          borderRadius="1rem"
          bg="brand.secondary"
-         w="22rem"
+         w="24rem"
          h="70vh"
          padding="1rem"
       >
@@ -124,14 +124,13 @@ const InfoBox = (props: InfoBoxProps) => {
                   );
                })}
             </VStack>
-            <HStack paddingY="0.4rem">
+            <HStack spacing={"1rem"} paddingY="0.4rem">
                <CustomButton
                   text={
                      currentUser?.isPlaying === true ? "SPECTATE" : "JOIN QUEUE"
                   }
                   onClick={spectateHandler}
                />
-               {/* <CustomButton text="VOTE KICK" onClick={leaveRoomHandler} /> */}
                <CustomButton text="LEAVE" onClick={leaveRoomHandler} />
             </HStack>
          </VStack>

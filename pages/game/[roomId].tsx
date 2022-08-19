@@ -38,9 +38,9 @@ const Room: NextPage = () => {
       <Page title="Game">
          <Flex
             flexDirection={{ sm: "column", lg: "row" }}
-            padding="3rem"
+            padding="2rem"
             alignItems={{ sm: "center", lg: "space-between" }}
-            gap="5rem"
+            gap="4rem"
             w="full"
          >
             <InfoBox roomId={roomId as string} />
