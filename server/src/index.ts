@@ -20,12 +20,17 @@ const app = express().use(
    })
 );
 const httpServer = createServer(app);
+const PORT = process.env.PORT || 4000;
+
 const io = new Server(httpServer, {
    cors: {
       origin: "*",
       methods: ["GET", "POST"],
    },
 });
+
+
+
 app.get("/rooms", (req, res) => {
    res.json(
       rooms.map((room: string, index: number) => ({
@@ -129,6 +134,7 @@ io.on("connection", (socket) => {
    });
 });
 
-httpServer.listen(4000, () => {
-   console.log("🔰 Server Started 🔰");
+httpServer.listen(PORT, () => {
+   console.log(`🔰 Server Started 🔰 on port ${PORT}`);
 });
+
